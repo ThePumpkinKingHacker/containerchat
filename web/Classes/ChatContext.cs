@@ -9,25 +9,27 @@ namespace web.Classes
         public DbSet<User> Users { get; set; }
         public DbSet<Message> Messages { get; set; }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder options)
-            => options.UseSqlServer("Data Source=blogging.db");
+        public ChatContext(DbContextOptions<ChatContext> options) : base(options)
+        {
+
+        }
     }
 
     public class User
     {
-        public int UserID { get; set; }
+        public int ID { get; set; }
         public string UserName { get; set; }
-	public string Password { get; set; }
-
+        public byte[] Password { get; set; }
+        public byte[] Salt { get; set; }
+        public byte RoleEnum { get; set; }
         public List<Message> Messages { get; } = new List<Message>();
     }
 
     public class Message
     {
-        public int MessageID { get; set; }
+        public int ID { get; set; }
         public DateTime Timestamp { get; set; }
         public string Content { get; set; }
-
         public int UserID { get; set; }
         public User User { get; set; }
     }

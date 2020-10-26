@@ -8,6 +8,10 @@ using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.EntityFrameworkCore;
+using web.Classes;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Http;
 
 namespace web
 {
@@ -23,7 +27,9 @@ namespace web
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllersWithViews();
+            services.AddDbContext<ChatContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+            services.AddControllersWithViews().AddRazorRuntimeCompilation();
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -44,7 +50,14 @@ namespace web
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
+
+            var cookiePolicyOptions = new CookiePolicyOptions
+            {
+                MinimumSameSitePolicy = SameSiteMode.Strict,
+            };
+            app.UseCookiePolicy(cookiePolicyOptions);
 
             app.UseEndpoints(endpoints =>
             {
