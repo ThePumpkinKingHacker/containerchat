@@ -4,59 +4,58 @@
     ViewBag.Link = "Chat";
 }
 <div class="container" style="text-align:left;">
-    @Html.Partial("_Header")
+    <partial name="_Header" />
     <div class="card border-primary mb-3">
         <div  id="Chat"  style="height:380px; overflow:auto; display:flex; flex-direction: column-reverse;">
-@foreach (var item in Model)
-{
-    if (item.UserName == User.Identity.Name)
-    {
-            <div class="d-flex">
-                <div style="width:30%">
+                @foreach (var item in Model)
+                {
+                    if (item.UserName == User.Identity.Name)
+                    {
+                            <div class="d-flex">
+                                <div style="width:30%">
 
-                </div>
-                <div style="width:70%">
-                    <div class="card-body">
-                        <div class="card bg-light">
-                            <div class="card-body">
-                                <div>
-                                    <span class="float-right">
-                                        @item.Date
-                                    </span>
-                                    <strong>@item.UserName</strong>
                                 </div>
-                                @Html.Raw(item.Content)
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-    }
-    else
-    {
-                    <div class="d-flex">
-                <div style="width:70%">
-                    <div class="card-body">
-                        <div class="card  text-white bg-dark">
-                            <div class="card-body">
-                                <div>
-                                    <span class="float-right">@item.Date</span>
-                                    <strong>@item.UserName</strong> 
+                                <div style="width:70%">
+                                    <div class="card-body">
+                                        <div class="card bg-light">
+                                            <div class="card-body">
+                                                <div>
+                                                    <span class="float-right">
+                                                        @item.Date
+                                                    </span>
+                                                    <strong>@item.UserName</strong>
+                                                </div>
+                                                @Html.Raw(item.Content)
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
-                                @Html.Raw(item.Content)
                             </div>
-                        </div>
-                    </div>
-                </div>
-                <div style="width:30%;">
+                    }
+                    else
+                    {
+                            <div class="d-flex">
+                                <div style="width:70%">
+                                    <div class="card-body">
+                                        <div class="card  text-white bg-dark">
+                                            <div class="card-body">
+                                                <div>
+                                                    <span class="float-right">@item.Date</span>
+                                                    <strong>@item.UserName</strong> 
+                                                </div>
+                                                @Html.Raw(item.Content)
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div style="width:30%;">
 
-                </div>
-            </div>
+                                </div>
+                            </div>
 
 
-    }
-}
-            
+                    }
+                }  
             </div>
         <hr />
                     <div class="d-flex">

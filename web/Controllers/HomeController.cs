@@ -53,12 +53,14 @@ namespace web.Controllers
                 if (!string.IsNullOrEmpty(currentCount) && Convert.ToInt32(currentCount) > 5)
                 {
                     ModelState.AddModelError("UserName", "Max password attempts has been exceeded.");
+                    _logger.LogWarning($"{model.UserName} has been locked out due to excessive login failures.");
                 }
                 else
                 {
                     if (existingUser == null)
                     {
                         ModelState.AddModelError("UserName", "Invalid Username or Password.");
+                        _logger.LogWarning($"Invalid username or password for {model.UserName}.");
                     }
                     else
                     {
@@ -66,6 +68,7 @@ namespace web.Controllers
                         if (!PasswordHelper.CompareByteArrays(hashedPassword, existingUser.Password))
                         {
                             ModelState.AddModelError("UserName", "Invalid Username or Password");
+                            _logger.LogWarning($"Invalid username or password for {model.UserName}.");
                         }
                     }
                 }
@@ -87,6 +90,8 @@ namespace web.Controllers
 
                     };
 
+                    _logger.LogWarning($"Successful login for {model.UserName}.");
+
                     await HttpContext.SignInAsync(
                         CookieAuthenticationDefaults.AuthenticationScheme,
                         new ClaimsPrincipal(claimsIdentity),
@@ -98,7 +103,7 @@ namespace web.Controllers
                 {
                     //Increment password attempts and set expiration 5 more minutes
                     db.StringIncrement(model.UserName);
-                    db.KeyExpire(model.UserName, new TimeSpan(0,5,0));
+                    db.KeyExpire(model.UserName, new TimeSpan(0, 5, 0));
                 }
 
 
