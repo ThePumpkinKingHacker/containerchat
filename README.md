@@ -39,3 +39,8 @@ A simple chat website that runs in containers with asp.net core, redis and sql s
      * dotnet run
 
 2a) Alternatively, use vscode to open ~/git/containerchat/web
+
+3) Visit "http://localhost:5000" in the web browser.
+
+    * Note you must wait 90 seconds for SQL to populate, or you may see errors.
+    * Note you may get an SSL certificate error.  It's OK to accept it temporarily.
