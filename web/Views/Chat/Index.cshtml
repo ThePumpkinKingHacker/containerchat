@@ -1,3 +1,5 @@
+@model List<MessageModel>
+
 @{
     ViewBag.Link = "Chat";
 }
@@ -5,17 +7,43 @@
     @Html.Partial("_Header")
     <div class="card border-primary mb-3">
         <div  id="Chat"  style="max-height:380px; overflow:auto; display:flex; flex-direction: column-reverse;">
+@foreach (var item in Model)
+{
+    if (item.UserName == User.Identity.Name)
+    {
             <div class="d-flex">
+                <div style="width:30%">
+
+                </div>
+                <div style="width:70%">
+                    <div class="card-body">
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <div>
+                                    <span class="float-right">
+                                        @item.Date
+                                    </span>
+                                    <strong>@item.UserName</strong>
+                                </div>
+                                @Html.Raw(item.Content)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    }
+    else
+    {
+                    <div class="d-flex">
                 <div style="width:70%">
                     <div class="card-body">
                         <div class="card  text-white bg-dark">
                             <div class="card-body">
                                 <div>
-                                    <span class="float-right">5:02 PM</span>
-                                    <strong>User A</strong> 
+                                    <span class="float-right">@item.Date</span>
+                                    <strong>@item.UserName</strong> 
                                 </div>
-                                Hello! This is a really long message to see how long these can be without
-                                    creating issues!
+                                @Html.Raw(item.Content)
                             </div>
                         </div>
                     </div>
@@ -24,46 +52,12 @@
 
                 </div>
             </div>
-            <div class="d-flex">
-                <div style="width:30%">
 
-                </div>
-                <div style="width:70%">
-                    <div class="card-body">
-                        <div class="card bg-light">
-                            <div class="card-body">
-                                <div>
-                                    <span class="float-right">
-                                        5:03 PM
-                                    </span>
-                                    <strong>User B</strong>
-                                </div>
-                                Test
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>           <div class="d-flex">
-                <div style="width:30%">
 
-                </div>
-                <div style="width:70%">
-                    <div class="card-body">
-                        <div class="card bg-light">
-                                             <div class="card-body">
-                                <div>
-                                    <span class="float-right">
-                                        5:03 PM
-                                    </span>
-                                    <strong>User B</strong>
-                                </div>
-                                Test
-                            </div>
-                        </div>
-                    </div>
-                </div>
+    }
+}
+            
             </div>
-        </div>
         <hr />
                     <div class="d-flex">
 
@@ -90,7 +84,7 @@
         var connection = new signalR.HubConnectionBuilder().withUrl("@Url.Content("/chatHub")").build();
         var currentUser = "@User.Identity.Name";
 
-        connection.on("ReceiveMessage", function (user, message) {
+        connection.on("ReceiveMessage", function (user, date, message) {
 
             var formattedMessage = "";
 
@@ -104,7 +98,7 @@
                                         <div class="card-body">
                                             <div>
                                                 <span class="float-right">
-                                                    5:03 PM
+                                                    ` + date + `
                                                 </span>
                                                 <strong>` + user + `</strong>
                                             </div>
@@ -131,7 +125,7 @@
                                         <div class="card-body">
                                             <div>
                                                 <span class="float-right">
-                                                    5:03 PM
+                                                    ` + date + `
                                                 </span>
                                                 <strong>` + user + `</strong>
                                             </div>
@@ -155,7 +149,6 @@
         }).catch(function (err) {
             return console.error(err.toString());
         });
-
 
         $(function()
         {
@@ -185,5 +178,12 @@
                 Send(event);
             }
         }
+
+        $(document).ready(function(){
+            $('#Chat').css('max-height', ($(window).height()-250));
+            });
+            $(window).resize(function(){
+                $('#Chat').css('max-height', ($(window).height()-250));
+            });
     </script>
 }

@@ -78,7 +78,7 @@ namespace web.Controllers
                         new ClaimsPrincipal(claimsIdentity),
                         authProperties);
 
-                    return RedirectToAction("Index", "User");
+                    return RedirectToAction("Index", "Chat");
                 }
 
 

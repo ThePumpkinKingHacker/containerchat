@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using web.Models;
 using web.Classes;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
 
 namespace web.Controllers
 {
@@ -25,7 +26,14 @@ namespace web.Controllers
 
         public IActionResult Index()
         {
-            return View();
+            var messages = _context.Messages.OrderByDescending(m=>m.Timestamp).Take(100).Include(m => m.User).Select(m => new MessageModel()
+            {
+                Content = m.Content,
+                Date = m.Timestamp,
+                UserName = m.User.UserName
+            }).ToList();
+
+            return View(messages);
         }
     }
 }

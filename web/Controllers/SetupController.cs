@@ -31,8 +31,6 @@ namespace web.Controllers
             return View();
         }
 
-
-
         [HttpPost]
         public IActionResult Index(SetupModel model)
         {
