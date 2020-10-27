@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace web.Controllers
 {
-    [Authorize]
+    [Authorize(Roles="Administrator,User")]
     public class ChatController : Controller
     {
         private readonly ILogger<ChatController> _logger;

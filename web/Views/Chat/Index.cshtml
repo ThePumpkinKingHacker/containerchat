@@ -6,7 +6,7 @@
 <div class="container" style="text-align:left;">
     @Html.Partial("_Header")
     <div class="card border-primary mb-3">
-        <div  id="Chat"  style="max-height:380px; overflow:auto; display:flex; flex-direction: column-reverse;">
+        <div  id="Chat"  style="height:380px; overflow:auto; display:flex; flex-direction: column-reverse;">
 @foreach (var item in Model)
 {
     if (item.UserName == User.Identity.Name)
@@ -180,10 +180,10 @@
         }
 
         $(document).ready(function(){
-            $('#Chat').css('max-height', ($(window).height()-250));
+            $('#Chat').css('height', ($(window).height()-250));
             });
             $(window).resize(function(){
-                $('#Chat').css('max-height', ($(window).height()-250));
+                $('#Chat').css('height', ($(window).height()-250));
             });
     </script>
 }

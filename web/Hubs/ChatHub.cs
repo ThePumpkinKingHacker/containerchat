@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace web.Hubs
 {
-    [Authorize]
+    [Authorize(Roles="Administrator,User")]
     public class ChatHub : Hub
     {
         private readonly ChatContext _context;
