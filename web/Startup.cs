@@ -32,8 +32,8 @@ namespace web
             services.AddDbContext<ChatContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
             services.AddControllersWithViews().AddRazorRuntimeCompilation();
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie();
-            services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect("localhost"));
-            services.AddSignalR().AddStackExchangeRedis("localhost",
+            services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(Configuration.GetSection("AppSettings").GetSection("RedisConnectionString").Value));
+            services.AddSignalR().AddStackExchangeRedis(Configuration.GetSection("AppSettings").GetSection("RedisConnectionString").Value,
                 options => {
                     options.Configuration.ChannelPrefix = "ContainerChat";
                 });

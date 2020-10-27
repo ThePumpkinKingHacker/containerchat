@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using web.Models;
 using web.Classes;
+using Microsoft.Extensions.Configuration;
 
 namespace web.Controllers
 {
@@ -14,11 +15,13 @@ namespace web.Controllers
     {
         private readonly ILogger<SetupController> _logger;
         private readonly ChatContext _context;
+        private readonly IConfiguration _configuration;
 
-        public SetupController(ILogger<SetupController> logger, ChatContext context)
+        public SetupController(ILogger<SetupController> logger, ChatContext context, IConfiguration configuration)
         {
             _logger = logger;
             _context = context;
+            _configuration = configuration;
         }
 
         public IActionResult Index()
@@ -43,7 +46,7 @@ namespace web.Controllers
 
             if (ModelState.IsValid)
             {
-                var setupSecret = "secretS"; //TODO: Get from appsettings
+                var setupSecret = _configuration.GetSection("AppSettings").GetSection("SetupSecret").Value;
                 if (string.Compare(setupSecret, model.SetupSecret) != 0)
                 {
                     ModelState.AddModelError("SetupSecret", "Invalid Setup Secret");

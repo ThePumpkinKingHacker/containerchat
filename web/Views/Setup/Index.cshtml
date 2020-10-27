@@ -3,9 +3,9 @@
 <div style="display:flex; height:100%; align-items:center;">
 
   <form asp-controller="Setup" asp-action="Index" method="post" class="form-signin">
-    <img class="mb-4" src="https://getbootstrap.com/docs/4.0/assets/brand/bootstrap-solid.svg" alt="" width="72"
+    <img class="mb-4" src="@Url.Content("skellington.png")" alt="" width="72"
     height="72">
-
+    
     <div style="color:red;">
       @Html.ValidationSummary()
     </div>
