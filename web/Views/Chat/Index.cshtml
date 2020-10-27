@@ -76,7 +76,7 @@
         <div style="width:30%">
                         <div class="card-body">
 
-            <button class="btn btn-primary" style="width:100%" onclick="Send()">Submit</button>
+            <button class="btn btn-primary" style="width:100%" onclick="Send(event)">Submit</button>
             </div>
         </div>
         </div>
@@ -85,15 +85,96 @@
 
 @section scripts
 {
+    <script src="~/js/signalr/dist/browser/signalr.js"></script>
     <script type="text/javascript">Chat
+        var connection = new signalR.HubConnectionBuilder().withUrl("@Url.Content("/chatHub")").build();
+        var currentUser = "@User.Identity.Name";
+
+        connection.on("ReceiveMessage", function (user, message) {
+
+            var formattedMessage = "";
+
+            if (user !== currentUser)
+            {
+                formattedMessage = `
+                        <div class="d-flex">
+                            <div style="width:70%">
+                                <div class="card-body">
+                                    <div class="card bg-dark text-white">
+                                        <div class="card-body">
+                                            <div>
+                                                <span class="float-right">
+                                                    5:03 PM
+                                                </span>
+                                                <strong>` + user + `</strong>
+                                            </div>
+                                            ` + message + `
+                                        </div>
+                                    </div>
+                                </div>
+                                <div style="width:30%">
+                                
+                                </div>
+                            </div>
+                        </div>`
+            }
+            else
+            {
+                formattedMessage = `
+                        <div class="d-flex">
+                            <div style="width:30%">
+
+                            </div>
+                            <div style="width:70%">
+                                <div class="card-body">
+                                    <div class="card bg-light">
+                                        <div class="card-body">
+                                            <div>
+                                                <span class="float-right">
+                                                    5:03 PM
+                                                </span>
+                                                <strong>` + user + `</strong>
+                                            </div>
+                                            ` + message + `
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>`
+            }
+
+
+
+
+            $("#Chat").prepend( formattedMessage);
+            
+        });
+
+        connection.start().then(function () {
+            //document.getElementById("sendButton").disabled = false;
+        }).catch(function (err) {
+            return console.error(err.toString());
+        });
+
+
         $(function()
         {
             $("#UserInput").focus();
         });
 
-        function Send()
+        function Send(event)
         {
-            $("#Chat").prepend( "<p>Test</p>" );
+            var text = $("#UserInput").val();
+            if (text!=="")
+            {
+                connection.invoke("SendMessage", text).catch(function (err) {
+                    return console.error(err.toString());
+                });
+
+                $("#UserInput").val("");
+            }
+
+            event.preventDefault();
         }
 
         function SendIfEnter(event)
@@ -101,7 +182,7 @@
              if (event.keyCode === 13) 
              {
                 event.preventDefault();
-                Send();
+                Send(event);
             }
         }
     </script>
