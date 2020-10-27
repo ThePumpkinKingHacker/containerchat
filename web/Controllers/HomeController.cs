@@ -10,6 +10,7 @@ using web.Classes;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using StackExchange.Redis;
 
 namespace web.Controllers
 {
@@ -17,11 +18,13 @@ namespace web.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly ChatContext _context;
+        private readonly IConnectionMultiplexer _connectionMultiplexer;
 
-        public HomeController(ILogger<HomeController> logger, ChatContext context)
+        public HomeController(ILogger<HomeController> logger, ChatContext context, IConnectionMultiplexer connectionMultiplexer)
         {
             _logger = logger;
             _context = context;
+            _connectionMultiplexer = connectionMultiplexer;
         }
 
         public IActionResult Index()
@@ -43,16 +46,27 @@ namespace web.Controllers
             {
                 var existingUser = _context.Users.FirstOrDefault(m => m.UserName == model.UserName);
 
-                if (existingUser == null)
+                //Grab current password attempts from redis
+                var db = _connectionMultiplexer.GetDatabase();
+                var currentCount = db.StringGet(model.UserName, 0);
+
+                if (!string.IsNullOrEmpty(currentCount) && Convert.ToInt32(currentCount) > 5)
                 {
-                    ModelState.AddModelError("UsernNme", "Invalid Username or Password.");
+                    ModelState.AddModelError("UserName", "Max password attempts has been exceeded.");
                 }
                 else
                 {
-                    var hashedPassword = PasswordHelper.GenerateSaltedHash(model.Password, existingUser.Salt);
-                    if (!PasswordHelper.CompareByteArrays(hashedPassword, existingUser.Password))
+                    if (existingUser == null)
                     {
-                        ModelState.AddModelError("UserName", "Invalid Username or Password");
+                        ModelState.AddModelError("UserName", "Invalid Username or Password.");
+                    }
+                    else
+                    {
+                        var hashedPassword = PasswordHelper.GenerateSaltedHash(model.Password, existingUser.Salt);
+                        if (!PasswordHelper.CompareByteArrays(hashedPassword, existingUser.Password))
+                        {
+                            ModelState.AddModelError("UserName", "Invalid Username or Password");
+                        }
                     }
                 }
 
@@ -80,13 +94,19 @@ namespace web.Controllers
 
                     return RedirectToAction("Index", "Chat");
                 }
+                else
+                {
+                    //Increment password attempts and set expiration 5 more minutes
+                    db.StringIncrement(model.UserName);
+                    db.KeyExpire(model.UserName, new TimeSpan(0,5,0));
+                }
 
 
             }
             return View(model);
         }
 
-        public async Task <IActionResult> Logout()
+        public async Task<IActionResult> Logout()
         {
             await HttpContext.SignOutAsync();
             return RedirectToAction("Index");

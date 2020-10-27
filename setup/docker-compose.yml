@@ -1,7 +1,7 @@
 version: "3.2"
 services:
-  sql-server-db:
-    container_name: sql-server-db
+  sql:
+    container_name: sql
     image: microsoft/mssql-server-linux:2017-latest
     ports:
       - "1433:1433"
@@ -14,3 +14,10 @@ services:
       - ./entrypoint.sh:/usr/share/sql/entrypoint.sh
       - ./InitialSetup.sh:/usr/share/sql/InitialSetup.sh
       - ./InitialSetup.sql:/usr/share/sql/InitialSetup.sql
+  redis:
+    container_name: redis
+    image: 'bitnami/redis:latest'
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    ports:
+      - 6379:6379

@@ -13,6 +13,7 @@ using web.Classes;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 using web.Hubs;
+using StackExchange.Redis;
 
 namespace web
 {
@@ -31,7 +32,11 @@ namespace web
             services.AddDbContext<ChatContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
             services.AddControllersWithViews().AddRazorRuntimeCompilation();
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie();
-            services.AddSignalR();
+            services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect("localhost"));
+            services.AddSignalR().AddStackExchangeRedis("localhost",
+                options => {
+                    options.Configuration.ChannelPrefix = "ContainerChat";
+                });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
