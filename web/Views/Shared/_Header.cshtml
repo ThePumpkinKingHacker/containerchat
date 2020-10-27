@@ -12,7 +12,7 @@
                 @:active                            
             }                        
             ">
-                <a class="nav-link" href="#">Chat</a>
+                <a class="nav-link" asp-action="Index" asp-controller="Chat">Chat</a>
             </li>
             <li class="nav-item 
             @if (ViewBag.Link == "Users")
@@ -20,8 +20,11 @@
                 @:active                            
             }
             ">
-                <a class="nav-link" href="#">Users</a>
+                <a class="nav-link" asp-action="Index" asp-controller="User">Users</a>
             </li>
         </ul>
+    </div>
+    <div class="text-white">
+        @User.Identity.Name
     </div>
 </nav>
