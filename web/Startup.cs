@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 using web.Hubs;
 using StackExchange.Redis;
+using Elastic.Apm.NetCoreAll;
 
 namespace web
 {
@@ -34,7 +35,8 @@ namespace web
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie();
             services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(Configuration.GetSection("AppSettings").GetSection("RedisConnectionString").Value));
             services.AddSignalR().AddStackExchangeRedis(Configuration.GetSection("AppSettings").GetSection("RedisConnectionString").Value,
-                options => {
+                options =>
+                {
                     options.Configuration.ChannelPrefix = "ContainerChat";
                 });
         }
@@ -42,6 +44,12 @@ namespace web
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            var elasticServer = Configuration.GetSection("ElasticApm").GetSection("ServerUrls").Value;
+            if (!string.IsNullOrWhiteSpace(elasticServer))
+            {
+                app.UseAllElasticApm(Configuration);
+            }
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
