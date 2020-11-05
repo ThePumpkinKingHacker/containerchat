@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: {{ .Release.Name }}-web
+  name: {{ .Release.Name }}-web
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-web
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-web
+    spec:
+      containers:
+      - args:
+        - dotnet
+        - /app/web.dll
+        env:
+        - name: AppSettings__RedisConnectionString
+          value: {{ .Release.Name }}-redis
+        - name: AppSettings__SetupSecret
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-db
+              key: SETUP_SECRET
+        - name: ConnectionStrings__DefaultConnection
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-db
+              key: CONNECTION_STRING
+        image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+        imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
+        name: {{ .Release.Name }}-web
+        ports:
+        - containerPort: 80
+        resources: {}
+      restartPolicy: Always
+status: {}

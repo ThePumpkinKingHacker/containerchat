@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: {{ .Release.Name }}-sql
+  name: {{ .Release.Name }}-sql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-sql
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-sql
+    spec:
+      containers:
+      - args:
+        - /usr/share/sql/entrypoint.sh
+        env:
+        - name: ACCEPT_EULA
+          value: "Y"
+        - name: SA_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Release.Name }}-db
+              key: SA_PASSWORD
+
+        image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+        imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
+        name: {{ .Release.Name }}-sql
+        resources: {}
+        volumeMounts:
+        - name: {{ .Release.Name }}-db-scripts-config
+          mountPath: /usr/share/sql
+      restartPolicy: Always
+      serviceAccountName: ""
+      volumes:
+      - name: {{ .Release.Name }}-db-scripts-config
+        configMap:
+          name: {{ .Release.Name }}-db-scripts 
+          defaultMode: 0555
+
+status: {}
