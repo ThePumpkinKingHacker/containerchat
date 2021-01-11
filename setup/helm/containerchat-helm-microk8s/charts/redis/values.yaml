@@ -5,9 +5,9 @@
 replicaCount: 1
 
 image:
-  repository: localhost:32000/containerchat-web
+  repository: bitnami/redis
   pullPolicy: IfNotPresent
   tag: "latest"
 service:
-  type: LoadBalancer
-  port: 80
+  type: ClusterIP
+  port: 6379

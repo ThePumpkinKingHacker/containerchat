@@ -15,6 +15,8 @@ using Microsoft.AspNetCore.Http;
 using web.Hubs;
 using StackExchange.Redis;
 using Elastic.Apm.NetCoreAll;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.DataProtection.StackExchangeRedis;
 
 namespace web
 {
@@ -33,12 +35,16 @@ namespace web
             services.AddDbContext<ChatContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
             services.AddControllersWithViews().AddRazorRuntimeCompilation();
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie();
-            services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(Configuration.GetSection("AppSettings").GetSection("RedisConnectionString").Value));
-            services.AddSignalR().AddStackExchangeRedis(Configuration.GetSection("AppSettings").GetSection("RedisConnectionString").Value,
+
+	    var redisConnectionString = Configuration.GetSection("AppSettings").GetSection("RedisConnectionString").Value;
+	    var redis = ConnectionMultiplexer.Connect(redisConnectionString);
+            services.AddSingleton<IConnectionMultiplexer>(redis);
+            services.AddSignalR().AddStackExchangeRedis(redisConnectionString,
                 options =>
                 {
                     options.Configuration.ChannelPrefix = "ContainerChat";
                 });
+	    services.AddDataProtection().PersistKeysToStackExchangeRedis(redis, "DataProtection-Keys");
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

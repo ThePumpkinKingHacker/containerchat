@@ -1,0 +1,41 @@
+apiVersion: v1
+data:
+  InitialSetup.sql: |
+    IF NOT EXISTS (select * from sysobjects where name='Users' and xtype='U')
+      CREATE TABLE [Users] (
+        [ID] int NOT NULL IDENTITY,
+        [UserName] varchar(50) NOT NULL,
+        [Password] binary(32) NOT NULL,
+        [Salt] binary(16) NOT NULL,
+        [RoleEnum] tinyint NOT NULL, --0=Admin,1=User
+        CONSTRAINT User_PK PRIMARY KEY (ID)	
+    );
+    GO
+
+    IF NOT EXISTS (select * from sysobjects where name='Messages' and xtype='U')
+      CREATE TABLE [Messages] (
+        [ID] int NOT NULL IDENTITY,
+        [UserID] int NOT NULL, 
+        [Timestamp] datetime NOT NULL,
+        [Content] varchar(1000) NOT NULL,
+        CONSTRAINT Message_PK PRIMARY KEY (ID),
+        CONSTRAINT Message_FK1 FOREIGN KEY (UserID) REFERENCES [Users]
+    );
+    GO
+  entrypoint.sh: |
+    #!/bin/bash
+    /usr/share/sql/InitialSetup.sh & /opt/mssql/bin/sqlservr
+  InitialSetup.sh: |
+    #!/bin/bash
+
+    # Wait to be sure that SQL Server came up
+    echo "Waiting for SQL to come online..."
+    sleep 90s
+
+    # Run the setup script to create the DB and the schema in the DB
+    # Note: make sure that your password matches what is in the Dockerfile
+    /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "$SA_PASSWORD" -d master -i /usr/share/sql/InitialSetup.sql
+    echo "Created initial database -- If no error happened, we're good!"
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-db-scripts
