@@ -5,7 +5,7 @@
 replicaCount: 2
 
 image:
-  repository: localhost:32000/containerchat-web
+  repository: localhost:32000/web
   pullPolicy: IfNotPresent
   tag: "latest"
 service:
