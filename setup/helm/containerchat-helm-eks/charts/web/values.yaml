@@ -1,0 +1,16 @@
+replicaCount: 1
+
+image:
+  repository: 540925604404.dkr.ecr.us-east-2.amazonaws.com/containerchat
+  pullPolicy: IfNotPresent
+  tag: "latest"
+service:
+  type: NodePort
+  port: 80
+resources:
+  requests:
+    memory: "64Mi"
+    cpu: "250m"
+  limits:
+    memory: "128Mi"
+    cpu: "500m"
